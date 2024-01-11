@@ -1,6 +1,8 @@
 # PS Windows Update
 Update windows with a simple command
 
+![image](https://github.com/async-it/ps_windows_update/assets/70369976/9fb774b5-c826-46aa-9dfa-7976e00a55c1)
+
 # Compile yourself
 
 Install ps2exe:
