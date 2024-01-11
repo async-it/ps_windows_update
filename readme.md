@@ -2,6 +2,12 @@
 Update windows with a simple command
 
 # Compile yourself
+
+Install ps2exe:
+```shell
+Install-Module -Name ps2exe
+```
+
 Download the repository content, open a command shell and convert it to .exe using ps2exe:
 
 ```shell
