@@ -4,8 +4,17 @@
 # Update Windows using powershell
 
 # Version 1.0
+# Version 1.1 - disable quickedit
 
-write-host "- Jonas Sauge - Async IT Sàrl - 2024"
+$version = 1.1
+
+write-host "   __      __.__            .___                     ____ ___            .___       __                "
+write-host "  /  \    /  \__| ____    __| _/______  _  ________ |    |   \______   __| _/____ _/  |_  ___________ "
+write-host "  \   \/\/   /  |/    \  / __ |/  _ \ \/ \/ /  ___/ |    |   /\____ \ / __ |\__  \\   __\/ __ \_  __ \"
+write-host "   \        /|  |   |  \/ /_/ (  <_> )     /\___ \  |    |  / |  |_> > /_/ | / __ \|  | \  ___/|  | \/"
+write-host "    \__/\  / |__|___|  /\____ |\____/ \/\_//____  > |______/  |   __/\____ |(____  /__|  \___  >__|   "
+write-host "         \/          \/      \/                 \/            |__|        \/     \/          \/       "
+write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version $version -----------------------------"
 write-host "- Updating Windows"
 
 # Check if admin rights are correctly acquired
@@ -14,6 +23,17 @@ write-host "- Updating Windows"
 	Read-Host -Prompt "Press Enter to continue..."
     exit
 }
+
+$currentLocation = Get-Location
+# Disable quick edit to ensure commands cannot be interrupted by mistake
+$value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
+	if($value -eq 1) {
+		Set-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit" -Value 0
+		Start-Process $currentLocation\update.exe
+		exit
+		} else {
+		Set-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit" -Value 1
+		}
 
 function installmoduleifmissing {
 $moduleInstalled = Get-Module -ListAvailable | Where-Object { $_.Name -eq 'PSWindowsUpdate' }
