@@ -6,8 +6,9 @@
 # Version 1.0
 # Version 1.1 - disable quickedit
 # Version 1.2 - Automatic update :)
+# Version 1.3 - Removed confusing informations
 
-$version = 1.2
+$version = 1.3
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -55,9 +56,6 @@ if ($version -eq $null) {
 	Start-Process C:\Windows\System32\update.exe
 	exit
 	
-} else {
-    # The update.exe is up to date
-    Write-Host "- Up to date"
 }
 }
 
