@@ -5,8 +5,13 @@
 
 # Version 1.0
 # Version 1.1 - disable quickedit
+# Version 1.2 - Automatic update :)
 
-$version = 1.1
+$version = 1.2
+
+# Ressources --------------------------
+$updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
+# --------------------------------------
 
 write-host "   __      __.__            .___                     ____ ___            .___       __                "
 write-host "  /  \    /  \__| ____    __| _/______  _  ________ |    |   \______   __| _/____ _/  |_  ___________ "
@@ -19,8 +24,8 @@ write-host "- Updating Windows"
 
 # Check if admin rights are correctly acquired
 	if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "This script requires administrative privileges."
-	Read-Host -Prompt "Press Enter to continue..."
+    Write-Host "- This script requires administrative privileges."
+	Read-Host -Prompt "- Press Enter to continue..."
     exit
 }
 
@@ -34,22 +39,45 @@ $value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
 		} else {
 		Set-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit" -Value 1
 		}
+		
+function selfupdate {
+# Check if the latest asset has the same version as actual, if not, an update is needed.
+$version = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets | Where-Object browser_download_url -like *$version*
+
+if ($version -eq $null) {
+    # Install update and restart process
+    Write-Host "- An update is available, installing"
+	$asset = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets | Where-Object name -like update.exe
+	$downloadUri = $asset.browser_download_url
+	$extractDirectory = "C:\Windows\System32\"
+	$extractPath = [System.IO.Path]::Combine($extractDirectory, $asset.name)
+	Invoke-WebRequest -Uri $downloadUri -OutFile $extractPath
+	Start-Process C:\Windows\System32\update.exe
+	exit
+	
+} else {
+    # The update.exe is up to date
+    Write-Host "- Up to date"
+}
+}
 
 function installmoduleifmissing {
 $moduleInstalled = Get-Module -ListAvailable | Where-Object { $_.Name -eq 'PSWindowsUpdate' }
 if ($moduleInstalled -eq $null) {
     # Install module if missing
-    Write-Host "Le module PSWindowsUpdate n'est pas installé. Installation en cours..."
+    Write-Host "- Installing PSWindowsUpdate"
 	set-executionpolicy remotesigned
 	Install-packageprovider -Name nuget -Force
 	Install-Module -Name PSWindowsUpdate -Force
 	import-Module -Name PSWindowsUpdate
-    Write-Host "Le module PSWindowsUpdate a été installé avec succès."
+    Write-Host "- PSWindowsUpdate installed"
 } else {
-    # Mudule already installed
-	write-host "$moduleInstalled"
-    Write-Host "Le module PSWindowsUpdate est déjà installé."
+    # Module already installed
+   Write-Host "- PSWindowsUpdate is already installed"
 }
 }
+
+selfupdate
 installmoduleifmissing
 Get-Wuinstall -Acceptall -Verbose -install
+exit
