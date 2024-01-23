@@ -7,8 +7,9 @@
 # Version 1.1 - disable quickedit
 # Version 1.2 - Automatic update :)
 # Version 1.3 - Removed confusing informations
+# Version 1.4 - fixed loop
 
-$version = 1.3
+$version = 1.4
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -43,9 +44,8 @@ $value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
 		
 function selfupdate {
 # Check if the latest asset has the same version as actual, if not, an update is needed.
-$version = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets | Where-Object browser_download_url -like *$version*
-
-if ($version -eq $null) {
+$actualversion = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets | Where-Object browser_download_url -like *$version*
+if ($actualversion -eq $null) {
     # Install update and restart process
     Write-Host "- An update is available, installing"
 	$asset = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets | Where-Object name -like update.exe
@@ -54,8 +54,7 @@ if ($version -eq $null) {
 	$extractPath = [System.IO.Path]::Combine($extractDirectory, $asset.name)
 	Invoke-WebRequest -Uri $downloadUri -OutFile $extractPath
 	Start-Process C:\Windows\System32\update.exe
-	exit
-	
+	exit	
 }
 }
 
