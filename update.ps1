@@ -7,9 +7,10 @@
 # Version 1.1 - disable quickedit
 # Version 1.2 - Automatic update :)
 # Version 1.3 - Removed confusing informations
-# Version 1.4 - fixed loop
+# Version 1.4 - fixed loop & correct file replacement
+# Version 1.5 - Correct file update 
 
-$version = 1.4
+$version = 1.5
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -30,6 +31,7 @@ write-host "- Updating Windows"
 	Read-Host -Prompt "- Press Enter to continue..."
     exit
 }
+
 
 $currentLocation = Get-Location
 # Disable quick edit to ensure commands cannot be interrupted by mistake
@@ -52,8 +54,7 @@ if ($actualversion -eq $null) {
 	$downloadUri = $asset.browser_download_url
 	$extractDirectory = "C:\Windows\System32\"
 	$extractPath = [System.IO.Path]::Combine($extractDirectory, $asset.name)
-	Invoke-WebRequest -Uri $downloadUri -OutFile $extractPath
-	Start-Process C:\Windows\System32\update.exe
+    Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"Write-Host '- Updating update.exe!'; Start-Sleep -Seconds 3; Invoke-WebRequest -Uri $downloadUri -OutFile $extractPath; Start-Process C:\Windows\System32\update.exe`""
 	exit	
 }
 }
@@ -68,9 +69,6 @@ if ($moduleInstalled -eq $null) {
 	Install-Module -Name PSWindowsUpdate -Force
 	import-Module -Name PSWindowsUpdate
     Write-Host "- PSWindowsUpdate installed"
-} else {
-    # Module already installed
-   Write-Host "- PSWindowsUpdate is already installed"
 }
 }
 
