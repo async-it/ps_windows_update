@@ -1,7 +1,15 @@
 # PS Windows Update
 Update windows with a simple command
 
-![image](https://github.com/async-it/ps_windows_update/assets/70369976/9fb774b5-c826-46aa-9dfa-7976e00a55c1)
+![image](https://github.com/async-it/ps_windows_update/assets/70369976/adea5795-d4a4-43ca-8213-a360de5636be)
+
+## Usage:
+- run from cmd, powershell or explorer
+```ssh
+update
+```
+
+
 
 # One liner installation: run in elevated powershell prompt
 ```shell
