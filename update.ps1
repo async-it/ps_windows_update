@@ -9,8 +9,9 @@
 # Version 1.3 - Removed confusing informations
 # Version 1.4 - fixed loop & correct file replacement
 # Version 1.5 - Correct file update 
+# Version 1.6 - Show version of windows
 
-$version = 1.5
+$version = 1.6
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -23,7 +24,10 @@ write-host "   \        /|  |   |  \/ /_/ (  <_> )     /\___ \  |    |  / |  |_>
 write-host "    \__/\  / |__|___|  /\____ |\____/ \/\_//____  > |______/  |   __/\____ |(____  /__|  \___  >__|   "
 write-host "         \/          \/      \/                 \/            |__|        \/     \/          \/       "
 write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version $version -----------------------------"
-write-host "- Updating Windows"
+$computerinfo = Get-ComputerInfo
+$computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Microsoft ', '' }
+$computerinfoversion = $computerinfo | select osdisplayversion -ExpandProperty osdisplayversion
+write-host "- Updating $computerinfoosname $computerinfoversion"
 
 # Check if admin rights are correctly acquired
 	if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
