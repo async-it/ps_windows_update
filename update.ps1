@@ -10,11 +10,17 @@
 # Version 1.4 - fixed loop & correct file replacement
 # Version 1.5 - Correct file update 
 # Version 1.6 - Show version of windows
+# Version 1.7 - Update chocolatey apps and update Anydeks client
 
-$version = 1.6
+$version = 1.7
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
+# Anydesk Download URL and path
+$AnyDeskUrl = "https://get.anydesk.com/d0WzDK32/Async_Support_Client.exe"
+$AnyDeskInstallerPath = "C:\Windows\Temp\anydesk_support_client.exe"
+# Anydesk paths to check
+$oldFilePath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
 # --------------------------------------
 
 write-host "   __      __.__            .___                     ____ ___            .___       __                "
@@ -76,7 +82,55 @@ if ($moduleInstalled -eq $null) {
 }
 }
 
+function anydeskupdate {
+if (Test-Path $oldFilePath) {
+Write-Host "- Checking if Anydesk needs an update"
+Write-Host "- Downloading Async Support package"
+Invoke-WebRequest -Uri $AnyDeskUrl -OutFile $AnyDeskInstallerPath
+if (Test-Path $oldFilePath) {
+}
+
+# Fonction pour obtenir la version d'un fichier
+function Get-FileVersion {
+    param (
+        [string]$filePath
+    )
+    $file = Get-Item -Path $filePath
+    $fileVersionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($file.FullName)
+    return $fileVersionInfo.FileVersion
+}
+
+# Comparing files versions
+$oldFileVersion = Get-FileVersion -filePath $oldFilePath
+$newFileVersion = Get-FileVersion -filePath $AnyDeskInstallerPath
+
+
+
+# Displayinf versions 
+Write-Host "- Installed:  $oldFileVersion - Available: $newFileVersion"
+# Comparer les versions
+if ($newFileVersion -gt $oldFileVersion) {
+	Write-Host "Installing Async Support package"
+	# Install anydesk using specified options
+	$arguments = "--install `"${env:ProgramFiles}\AnyDesk`" --start-with-win --create-desktop-icon --remove-first"
+	Start-Process -FilePath "$AnyDeskInstallerPath" -ArgumentList $arguments -Wait
+} else {
+    Write-Host "- Anydesk up to date"
+}
+} else {
+ Write-Host "- Anydesk not installed"
+}
+
+}
+
 selfupdate
 installmoduleifmissing
+# Check if Chocolatey is already installed
+$chocoPath = Join-Path $env:SystemDrive "ProgramData\chocolatey\bin\choco.exe"
+	if (Test-Path $chocoPath) {
+		Write-Host "- Chocolatey is installed - updating apps"
+  		choco upgrade all -y
+   	}
+anydeskupdate
 Get-Wuinstall -Acceptall -Verbose -install
 exit
