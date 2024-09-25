@@ -11,8 +11,9 @@
 # Version 1.5 - Correct file update 
 # Version 1.6 - Show version of windows
 # Version 1.7 - Update chocolatey apps and update Anydeks client
+# Version 1.8 - little enhancements, only use functions, reorder a bit in the hope to be a bit faster to start
 
-$version = 1.7
+$version = 1.8
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -35,14 +36,16 @@ $computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Micro
 $computerinfoversion = $computerinfo | select osdisplayversion -ExpandProperty osdisplayversion
 write-host "- Updating $computerinfoosname $computerinfoversion"
 
+function admincheck {
 # Check if admin rights are correctly acquired
 	if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "- This script requires administrative privileges."
 	Read-Host -Prompt "- Press Enter to continue..."
     exit
 }
+}
 
-
+function setconsolesettings {
 $currentLocation = Get-Location
 # Disable quick edit to ensure commands cannot be interrupted by mistake
 $value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
@@ -53,7 +56,8 @@ $value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
 		} else {
 		Set-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit" -Value 1
 		}
-		
+}
+
 function selfupdate {
 # Check if the latest asset has the same version as actual, if not, an update is needed.
 $actualversion = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets | Where-Object browser_download_url -like *$version*
@@ -66,6 +70,8 @@ if ($actualversion -eq $null) {
 	$extractPath = [System.IO.Path]::Combine($extractDirectory, $asset.name)
     Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"Write-Host '- Updating update.exe!'; Start-Sleep -Seconds 3; Invoke-WebRequest -Uri $downloadUri -OutFile $extractPath; Start-Process C:\Windows\System32\update.exe`""
 	exit	
+} else {
+	Write-Host "- Update.exe is already in the latest version, no update needed"
 }
 }
 
@@ -118,19 +124,29 @@ if ($newFileVersion -gt $oldFileVersion) {
     Write-Host "- Anydesk up to date"
 }
 } else {
- Write-Host "- Anydesk not installed"
+ Write-Host "- Anydesk for customers not installed"
 }
 
 }
 
-selfupdate
-installmoduleifmissing
+function chocoappsupdate {
 # Check if Chocolatey is already installed
 $chocoPath = Join-Path $env:SystemDrive "ProgramData\chocolatey\bin\choco.exe"
 	if (Test-Path $chocoPath) {
 		Write-Host "- Chocolatey is installed - updating apps"
   		choco upgrade all -y
    	}
-anydeskupdate
+}
+
+function windowsupdate {
 Get-Wuinstall -Acceptall -Verbose -install
+}
+
+admincheck
+selfupdate
+setconsolesettings
+installmoduleifmissing
+chocoappsupdate
+anydeskupdate
+windowsupdate
 exit
