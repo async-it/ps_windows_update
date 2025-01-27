@@ -41,10 +41,12 @@ write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version
 }
 
 function displayHeaderFull {
+clear
 displayHeaderInitial
 $computerinfo = Get-ComputerInfo
 $computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Microsoft ', '' }
 $computerinfoversion = $computerinfo | select osdisplayversion -ExpandProperty osdisplayversion
+write-host "- Updating $computerinfoosname $computerinfoversion"
 }
 
 function errorCheck {
@@ -180,7 +182,6 @@ displayHeaderInitial
 admincheck
 selfupdate
 setconsolesettings
-clear
 displayHeaderFull
 installmoduleifmissing
 chocoappsupdate
