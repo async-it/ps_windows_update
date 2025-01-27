@@ -180,6 +180,7 @@ displayHeaderInitial
 admincheck
 selfupdate
 setconsolesettings
+clear
 displayHeaderFull
 installmoduleifmissing
 chocoappsupdate
