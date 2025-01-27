@@ -14,7 +14,7 @@
 # Version 1.8 - little enhancements, only use functions, reorder a bit in the hope to be a bit faster to start
 # Version 2.0 - Make program more resilient, add --noprogress to choco update to ensure better readability, other improvements, makes it faster, make it path agnostic, add error checks
 
-$version = 2.0
+$version = "2.0"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
