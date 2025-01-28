@@ -13,8 +13,9 @@
 # Version 1.7 - Update chocolatey apps and update Anydeks client
 # Version 1.8 - little enhancements, only use functions, reorder a bit in the hope to be a bit faster to start
 # Version 2.0 - Make program more resilient, add --noprogress to choco update to ensure better readability, other improvements, makes it faster, make it path agnostic, add error checks
+# Version 2.0 - Small enhancements to make the start of process feel faster
 
-$version = "2.0"
+$version = "2.1"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -30,7 +31,7 @@ $executableFilePath = Join-Path -Path $currentLocation -ChildPath $filename
 
 # --------------------------------------
 
-function displayHeaderInitial {
+function displayHeader {
 write-host "   __      __.__            .___                     ____ ___            .___       __                "
 write-host "  /  \    /  \__| ____    __| _/______  _  ________ |    |   \______   __| _/____ _/  |_  ___________ "
 write-host "  \   \/\/   /  |/    \  / __ |/  _ \ \/ \/ /  ___/ |    |   /\____ \ / __ |\__  \\   __\/ __ \_  __ \"
@@ -38,11 +39,6 @@ write-host "   \        /|  |   |  \/ /_/ (  <_> )     /\___ \  |    |  / |  |_>
 write-host "    \__/\  / |__|___|  /\____ |\____/ \/\_//____  > |______/  |   __/\____ |(____  /__|  \___  >__|   "
 write-host "         \/          \/      \/                 \/            |__|        \/     \/          \/       "
 write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version $version -----------------------------"
-}
-
-function displayHeaderFull {
-clear
-displayHeaderInitial
 $computerinfo = Get-ComputerInfo
 $computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Microsoft ', '' }
 $computerinfoversion = $computerinfo | select osdisplayversion -ExpandProperty osdisplayversion
@@ -70,11 +66,11 @@ function admincheck {
 }
 
 function setconsolesettings {
-$currentLocation = Get-Location
 # Disable quick edit to ensure commands cannot be interrupted by mistake
 $value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
 	if($value -eq 1) {
 		Set-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit" -Value 0
+		$currentLocation = Get-Location
 		Start-Process $currentLocation\update.exe
 		exit
 		} else {
@@ -92,8 +88,6 @@ $onlineversionurl = ($versionwebrequest).browser_download_url
 $indexStart = $onlineversionurl.IndexOf("download/") + 9
 $indexEnd = $onlineversionurl.IndexOf("/update.exe", $indexStart)
 $onlineVersionValue = $onlineversionurl.Substring($indexStart, $indexEnd - $indexStart)
-Write-Host "- Online version is: $onlineVersionValue"
-
 if ($onlineVersionValue -gt $version) {
     # Install update and restart process
     Write-Host "- An update is available, installing"
@@ -102,9 +96,7 @@ if ($onlineVersionValue -gt $version) {
 	errorcheck
 	exit
 } else {
-		if ($onlineVersionValue -eq $version) {
-			Write-Host "- Update.exe is already in the latest version, no update needed"
-		} else {
+		if ($onlineVersionValue -lt $version) {
 			Write-Host "- Error: Your version seems to be above online version, please check"
 			pause
 			exit
@@ -178,11 +170,10 @@ function windowsupdate {
 Get-Wuinstall -Acceptall -Verbose -install
 }
 
-displayHeaderInitial
 admincheck
 selfupdate
 setconsolesettings
-displayHeaderFull
+displayHeader
 installmoduleifmissing
 chocoappsupdate
 anydeskupdate
