@@ -46,15 +46,13 @@ write-host "- Updating $computerinfoosname $computerinfoversion"
 }
 
 function errorCheck {
-if ($?) {
-		Write-Output ""
-	} else {
-		Write-Output "- Error Happened, application will exit"
-		pause
-		exit
-	}					
+    # Check if the last command was successful
+    if (!$?) {
+        Write-Host "- Error Happened, app will quit"
+        pause
+        exit
+    }
 }
-
 
 function admincheck {
 # Check if admin rights are correctly acquired
