@@ -14,8 +14,9 @@
 # Version 1.8 - little enhancements, only use functions, reorder a bit in the hope to be a bit faster to start
 # Version 2.0 - Make program more resilient, add --noprogress to choco update to ensure better readability, other improvements, makes it faster, make it path agnostic, add error checks
 # Version 2.0 - Small enhancements to make the start of process feel faster
+# Version 2.2 - add title to window, changed the header asciiart
 
-$version = "2.1"
+$version = "2.2"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -31,13 +32,16 @@ $executableFilePath = Join-Path -Path $currentLocation -ChildPath $filename
 
 # --------------------------------------
 
+$Host.UI.RawUI.WindowTitle = 'Async Windows Updater'
+
 function displayHeader {
-write-host "   __      __.__            .___                     ____ ___            .___       __                "
-write-host "  /  \    /  \__| ____    __| _/______  _  ________ |    |   \______   __| _/____ _/  |_  ___________ "
-write-host "  \   \/\/   /  |/    \  / __ |/  _ \ \/ \/ /  ___/ |    |   /\____ \ / __ |\__  \\   __\/ __ \_  __ \"
-write-host "   \        /|  |   |  \/ /_/ (  <_> )     /\___ \  |    |  / |  |_> > /_/ | / __ \|  | \  ___/|  | \/"
-write-host "    \__/\  / |__|___|  /\____ |\____/ \/\_//____  > |______/  |   __/\____ |(____  /__|  \___  >__|   "
-write-host "         \/          \/      \/                 \/            |__|        \/     \/          \/       "
+write-host "
+ __      ___         _                 _   _          _      _           
+ \ \    / (_)_ _  __| |_____ __ _____ | | | |_ __  __| |__ _| |_ ___ _ _ 
+  \ \/\/ /| | ' \/ _` / _ \ V  V (_-< | |_| | '_ \/ _` / _` |  _/ -_) '_|
+   \_/\_/ |_|_||_\__,_\___/\_/\_//__/  \___/| .__/\__,_\__,_|\__\___|_|  
+                                            |_|                           
+"
 write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version $version -----------------------------"
 $computerinfo = Get-ComputerInfo
 $computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Microsoft ', '' }
