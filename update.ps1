@@ -15,13 +15,14 @@
 # Version 2.0 - Make program more resilient, add --noprogress to choco update to ensure better readability, other improvements, makes it faster, make it path agnostic, add error checks
 # Version 2.0 - Small enhancements to make the start of process feel faster
 # Version 2.2 - add title to window, changed the header asciiart
+# Version 2.3 - Updated anydesk url and download method
 
-$version = "2.2"
+$version = "2.3"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
 # Anydesk Download URL and path
-$AnyDeskUrl = "https://get.anydesk.com/d0WzDK32/Async_Support_Client.exe"
+$AnyDeskUrl = "https://my.anydesk.com/download/d0WzDK32/Async_support_client.msi"
 $AnyDeskInstallerPath = "C:\Windows\Temp\anydesk_support_client.exe"
 # Anydesk paths to check
 $oldFilePath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
@@ -36,11 +37,13 @@ $Host.UI.RawUI.WindowTitle = 'Async Windows Updater'
 
 function displayHeader {
 write-host "
+
  __      ___         _                 _   _          _      _           
  \ \    / (_)_ _  __| |_____ __ _____ | | | |_ __  __| |__ _| |_ ___ _ _ 
   \ \/\/ /| | ' \/ _` / _ \ V  V (_-< | |_| | '_ \/ _` / _` |  _/ -_) '_|
    \_/\_/ |_|_||_\__,_\___/\_/\_//__/  \___/| .__/\__,_\__,_|\__\___|_|  
                                             |_|                           
+
 "
 write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version $version -----------------------------"
 $computerinfo = Get-ComputerInfo
@@ -121,9 +124,10 @@ if ($moduleInstalled -eq $null) {
 
 function anydeskupdate {
 if (Test-Path $oldFilePath) {
-Write-Host "- Checking if Anydesk needs an update"
 Write-Host "- Downloading Async Support package"
-Invoke-WebRequest -Uri $AnyDeskUrl -OutFile $AnyDeskInstallerPath
+# 20250416 - Use curl instead of invoke-webrequest that throw error 403 when ran from inside this exe
+curl.exe -s -L $AnyDeskUrl -o $AnyDeskInstallerPath
+# Invoke-WebRequest -Uri $AnyDeskUrl -OutFile $AnyDeskInstallerPath
 errorCheck
 if (Test-Path $oldFilePath) {
 }
@@ -143,7 +147,7 @@ $oldFileVersion = Get-FileVersion -filePath $oldFilePath
 $newFileVersion = Get-FileVersion -filePath $AnyDeskInstallerPath
 
 # Displayinf versions 
-Write-Host "- Installed:  $oldFileVersion - Available: $newFileVersion"
+Write-Host "- Checking if Anydesk needs an update - Installed: $oldFileVersion - Available: $newFileVersion"
 # Comparer les versions
 if ($newFileVersion -gt $oldFileVersion) {
 	Write-Host "Installing Async Support package"
