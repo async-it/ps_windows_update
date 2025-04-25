@@ -16,8 +16,9 @@
 # Version 2.0 - Small enhancements to make the start of process feel faster
 # Version 2.2 - add title to window, changed the header asciiart
 # Version 2.3 - Updated anydesk url and download method
+# Version 2.4 - Fixed ASCII art
 
-$version = "2.3"
+$version = "2.4"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -37,15 +38,13 @@ $Host.UI.RawUI.WindowTitle = 'Async Windows Updater'
 
 function displayHeader {
 write-host "
-
- __      ___         _                 _   _          _      _           
- \ \    / (_)_ _  __| |_____ __ _____ | | | |_ __  __| |__ _| |_ ___ _ _ 
-  \ \/\/ /| | ' \/ _` / _ \ V  V (_-< | |_| | '_ \/ _` / _` |  _/ -_) '_|
-   \_/\_/ |_|_||_\__,_\___/\_/\_//__/  \___/| .__/\__,_\__,_|\__\___|_|  
-                                            |_|                           
-
+ __      ___         _                              _      _           
+ \ \    / (_)_ _  __| |_____ __ _____  _  _ _ __ __| |__ _| |_ ___ _ _ 
+  \ \/\/ /| | ' \/ _`` / _ \ V  V (_-< | || | '_ / _`` / _`` |  _/ -_| '_|
+   \_/\_/ |_|_||_\__,_\___/\_/\_//__/  \_,_| .__\__,_\__,_|\__\___|_|  
+                                           |_|                          
+---------- Jonas Sauge - Async IT Sàrl - 2024 - version $version ----------
 "
-write-host "---------------------- Jonas Sauge - Async IT Sàrl - 2024 - version $version -----------------------------"
 $computerinfo = Get-ComputerInfo
 $computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Microsoft ', '' }
 $computerinfoversion = $computerinfo | select osdisplayversion -ExpandProperty osdisplayversion
