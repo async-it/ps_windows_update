@@ -17,8 +17,9 @@
 # Version 2.2 - add title to window, changed the header asciiart
 # Version 2.3 - Updated anydesk url and download method
 # Version 2.4 - Fixed ASCII art
+# Version 2.5 - Enhanced Anydesk Download
 
-$version = "2.4"
+$version = "2.5"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -82,6 +83,42 @@ $value = (Get-ItemProperty -Path "HKCU:\Console" -Name "QuickEdit").QuickEdit
 		}
 }
 
+function anydesk_download {
+$maxAttempts = 3
+$attempt = 1
+$success = $false
+
+while (-not $success -and $attempt -le $maxAttempts) {
+    Write-Host "Tentative $attempt de téléchargement..." -ForegroundColor Yellow
+    curl.exe -s -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o $AnyDeskInstallerPath $AnyDeskUrl
+
+    if (Test-Path $AnyDeskInstallerPath) {
+        $content = Get-Content $AnyDeskInstallerPath -Raw -Encoding Byte
+        $asText = [System.Text.Encoding]::ASCII.GetString($content)
+
+        if ($asText -match "<html" -or $asText -match "<!DOCTYPE html") {
+            Write-Host "- Erreur : fichier HTML détecté. Suppression du fichier..." -ForegroundColor Red
+            Remove-Item $AnyDeskInstallerPath -ErrorAction SilentlyContinue
+        } else {
+            Write-Host "- Téléchargement réussi : $AnyDeskInstallerPath" -ForegroundColor Green
+			$success = $true
+        }
+    } else {
+        Write-Host "- Erreur : fichier non trouvé après téléchargement." -ForegroundColor Red
+    }
+
+    if (-not $success) {
+        $attempt++
+        Start-Sleep -Seconds 2
+    }
+}
+
+if (-not $success) {
+    Write-Host "❌ Échec du téléchargement après $maxAttempts tentatives." -ForegroundColor Red
+}
+
+}
+
 function selfupdate {
 # Check if the latest asset has the same version as actual, if not, an update is needed.
 
@@ -125,9 +162,8 @@ function anydeskupdate {
 if (Test-Path $oldFilePath) {
 Write-Host "- Downloading Async Support package"
 # 20250416 - Use curl instead of invoke-webrequest that throw error 403 when ran from inside this exe
-curl.exe -s -L $AnyDeskUrl -o $AnyDeskInstallerPath
 # Invoke-WebRequest -Uri $AnyDeskUrl -OutFile $AnyDeskInstallerPath
-errorCheck
+anydesk_download
 if (Test-Path $oldFilePath) {
 }
 
