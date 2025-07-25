@@ -44,7 +44,7 @@ write-host "
   \ \/\/ /| | ' \/ _`` / _ \ V  V (_-< | || | '_ / _`` / _`` |  _/ -_| '_|
    \_/\_/ |_|_||_\__,_\___/\_/\_//__/  \_,_| .__\__,_\__,_|\__\___|_|  
                                            |_|                          
----------- Jonas Sauge - Async IT Sàrl - 2024 - version $version ----------
+---------- Jonas Sauge - Async IT Sàrl - 2025 - version $version ----------
 "
 $computerinfo = Get-ComputerInfo
 $computerinfoosname = $computerinfo | ForEach-Object { $_.osName -replace 'Microsoft ', '' }
