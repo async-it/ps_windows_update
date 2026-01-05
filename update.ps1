@@ -18,8 +18,9 @@
 # Version 2.3 - Updated anydesk url and download method
 # Version 2.4 - Fixed ASCII art
 # Version 2.5 - Enhanced Anydesk Download
+# Version 2.6 - Prevent script block using basic parsing web request
 
-$version = "2.5"
+$version = "2.6"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -122,7 +123,7 @@ if (-not $success) {
 function selfupdate {
 # Check if the latest asset has the same version as actual, if not, an update is needed.
 
-$versionwebrequest = (Invoke-WebRequest $updateexedownloadurl | ConvertFrom-Json).assets
+$versionwebrequest = (Invoke-WebRequest -UseBasicParsing $updateexedownloadurl | ConvertFrom-Json).assets
 errorCheck
 $onlineversionurl = ($versionwebrequest).browser_download_url
 # Obtaining Online version
