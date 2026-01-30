@@ -19,13 +19,14 @@
 # Version 2.4 - Fixed ASCII art
 # Version 2.5 - Enhanced Anydesk Download
 # Version 2.6 - Prevent script block using basic parsing web request
+# Version 2.7 - Download Anydesk from async website
 
-$version = "2.6"
+$version = "2.7"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
 # Anydesk Download URL and path
-$AnyDeskUrl = "https://my.anydesk.com/download/d0WzDK32/Async_support_client.msi"
+$AnyDeskUrl = "https://async-it.ch/data/files/async_support_client.png"
 $AnyDeskInstallerPath = "C:\Windows\Temp\anydesk_support_client.exe"
 # Anydesk paths to check
 $oldFilePath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
