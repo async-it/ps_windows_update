@@ -20,16 +20,20 @@
 # Version 2.5 - Enhanced Anydesk Download
 # Version 2.6 - Prevent script block using basic parsing web request
 # Version 2.7 - Download Anydesk from async website
+# Version 2.8 - Set shortcut to Anydesk if it gets updated
 
-$version = "2.7"
+$version = "2.8"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
+
 # Anydesk Download URL and path
 $AnyDeskUrl = "https://async-it.ch/data/files/async_support_client.png"
 $AnyDeskInstallerPath = "C:\Windows\Temp\anydesk_support_client.exe"
 # Anydesk paths to check
 $oldFilePath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
+$AnyDeskShortcutB64 = "TAAAAAEUAgAAAAAAwAAAAAAAAEbPAAAAIAAAAKiqO79yztwBJR1Bv3LO3AGAd26+cs7cAaATVgAAAAAAAQAAAEgGAAAAAAAAAAAAAIcBFAAfUOBP0CDqOmkQotgIACswMJ0ZAC9DOlwAAAAAAAAAAAAAAAAAAAAAAAAAjAAxAAAAAACRXCxwEQBQUk9HUkF+MQAAdAAJAAQA776BWEQ7kVwscC4AAABgkwYAAAABAAAAAAAAAAAASgAAAAAASnEAAVAAcgBvAGcAcgBhAG0AIABGAGkAbABlAHMAAABAAHMAaABlAGwAbAAzADIALgBkAGwAbAAsAC0AMgAxADcAOAAxAAAAGABWADEAAAAAAJFcPHAQAEFueURlc2sAQAAJAAQA776RXDxwkVw8cC4AAAA6VwAAAAAHAAAAAAAAAAAAAAAAAAAAWLfwAEEAbgB5AEQAZQBzAGsAAAAWAHYAMgCgE1YAkVw7cCAAQU5ZREVTfjEuRVhFAABaAAkABADvvpFcPHCRXDxwLgAAAEFXAAAAAAgAAAAAAAAAAAAAAAAAAACAvYwAQQBuAHkARABlAHMAawAtAGIANAA1AGEAMwA2ADEANwAuAGUAeABlAAAAHAAAAFwAAAAcAAAAAQAAABwAAAAtAAAAAAAAAFsAAAARAAAAAwAAAFwwYJwQAAAAAEM6XFByb2dyYW0gRmlsZXNcQW55RGVza1xBbnlEZXNrLWI0NWEzNjE3LmV4ZQAAGABBAG4AeQBEAGUAcwBrACAAQQBzAHkAbgBjACAASQBUACAAUwB1AHAAcABvAHIAdAAzAC4ALgBcAC4ALgBcAC4ALgBcAFAAcgBvAGcAcgBhAG0AIABGAGkAbABlAHMAXABBAG4AeQBEAGUAcwBrAFwAQQBuAHkARABlAHMAawAtAGIANAA1AGEAMwA2ADEANwAuAGUAeABlADgAJQBTAHkAcwB0AGUAbQBEAHIAaQB2AGUAJQBcAFAAcgBvAGcAcgBhAG0AIABGAGkAbABlAHMAXABBAG4AeQBEAGUAcwBrAFwAQQBuAHkARABlAHMAawAtAGIANAA1AGEAMwA2ADEANwAuAGUAeABlAGAAAAADAACgWAAAAAAAAAB3aW4xMS10ZXN0AAAAAAAAcspyfS+JKEm2u4k2JMrQCsdDPQllOvERi0lWiSvR6R9yynJ9L4koSba7iTYkytAKx0M9CWU68RGLSVaJK9HpHxAAAAAFAACgJgAAALkAAAAcAAAACwAAoLZjXpC/wU5JspxltzLT0hq5AAAAJwEAAAkAAKCJAAAAMVNQU+KKWEa8TDhDu/wTkyaYbc5tAAAABAAAAAAfAAAALgAAAFMALQAxAC0ANQAtADIAMQAtADUAOQA2ADQAMAA0ADUANgA2AC0AMQA1ADEAOAA2ADQAMAAwADMAMAAtADIAOAA3ADgANQAyADIAOQAzADQALQAxADAAMAAxAAAAAAAAAFkAAAAxU1BTVShMn3mfOUuo0OHULeHV8z0AAAAFAAAAAB8AAAAVAAAAcAByAG8AawB6AHUAbAB0ACAAYQBkAF8AYgA0ADUAYQAzADYAMQA3AAAAAAAAAAAAOQAAADFTUFOxFm1ErY1wSKdIQC6kPXiMHQAAAGgAAAAASAAAALL8yGu8QKdJnv0M9Sk7Uw4AAAAAAAAAAAAAAAA="
+
 # Environement
 $currentLocation = Get-Location
 $filename = "update.exe"
@@ -191,6 +195,9 @@ if ($newFileVersion -gt $oldFileVersion) {
 	# Install anydesk using specified options
 	$arguments = "--install `"${env:ProgramFiles}\AnyDesk`" --start-with-win --create-desktop-icon --remove-first"
 	Start-Process -FilePath "$AnyDeskInstallerPath" -ArgumentList $arguments -Wait
+	Write-host "Setting Anydesk shortcut to CTRL + ALT + H"
+	$bytes = [Convert]::FromBase64String($AnyDeskShortcutB64)
+	[System.IO.File]::WriteAllBytes("C:\Users\Public\Desktop\AnyDesk Async IT Support.lnk", $bytes)
 } else {
     Write-Host "- Anydesk up to date"
 }
