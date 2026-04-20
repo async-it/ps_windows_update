@@ -21,8 +21,9 @@
 # Version 2.6 - Prevent script block using basic parsing web request
 # Version 2.7 - Download Anydesk from async website
 # Version 2.8 - Set shortcut to Anydesk if it gets updated
+# Version 2.9 - Remove old anydesk installation and reinstall with a path that match shortcut conf.
 
-$version = "2.8"
+$version = "2.9"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -30,6 +31,7 @@ $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update
 # Anydesk Download URL and path
 $AnyDeskUrl = "https://async-it.ch/data/files/async_support_client.png"
 $AnyDeskInstallerPath = "C:\Windows\Temp\anydesk_support_client.exe"
+$AnyDeskInstallPath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
 # Anydesk paths to check
 $oldFilePath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
 $AnyDeskShortcutB64 = "TAAAAAEUAgAAAAAAwAAAAAAAAEbPAAAAIAAAAKiqO79yztwBJR1Bv3LO3AGAd26+cs7cAaATVgAAAAAAAQAAAEgGAAAAAAAAAAAAAIcBFAAfUOBP0CDqOmkQotgIACswMJ0ZAC9DOlwAAAAAAAAAAAAAAAAAAAAAAAAAjAAxAAAAAACRXCxwEQBQUk9HUkF+MQAAdAAJAAQA776BWEQ7kVwscC4AAABgkwYAAAABAAAAAAAAAAAASgAAAAAASnEAAVAAcgBvAGcAcgBhAG0AIABGAGkAbABlAHMAAABAAHMAaABlAGwAbAAzADIALgBkAGwAbAAsAC0AMgAxADcAOAAxAAAAGABWADEAAAAAAJFcPHAQAEFueURlc2sAQAAJAAQA776RXDxwkVw8cC4AAAA6VwAAAAAHAAAAAAAAAAAAAAAAAAAAWLfwAEEAbgB5AEQAZQBzAGsAAAAWAHYAMgCgE1YAkVw7cCAAQU5ZREVTfjEuRVhFAABaAAkABADvvpFcPHCRXDxwLgAAAEFXAAAAAAgAAAAAAAAAAAAAAAAAAACAvYwAQQBuAHkARABlAHMAawAtAGIANAA1AGEAMwA2ADEANwAuAGUAeABlAAAAHAAAAFwAAAAcAAAAAQAAABwAAAAtAAAAAAAAAFsAAAARAAAAAwAAAFwwYJwQAAAAAEM6XFByb2dyYW0gRmlsZXNcQW55RGVza1xBbnlEZXNrLWI0NWEzNjE3LmV4ZQAAGABBAG4AeQBEAGUAcwBrACAAQQBzAHkAbgBjACAASQBUACAAUwB1AHAAcABvAHIAdAAzAC4ALgBcAC4ALgBcAC4ALgBcAFAAcgBvAGcAcgBhAG0AIABGAGkAbABlAHMAXABBAG4AeQBEAGUAcwBrAFwAQQBuAHkARABlAHMAawAtAGIANAA1AGEAMwA2ADEANwAuAGUAeABlADgAJQBTAHkAcwB0AGUAbQBEAHIAaQB2AGUAJQBcAFAAcgBvAGcAcgBhAG0AIABGAGkAbABlAHMAXABBAG4AeQBEAGUAcwBrAFwAQQBuAHkARABlAHMAawAtAGIANAA1AGEAMwA2ADEANwAuAGUAeABlAGAAAAADAACgWAAAAAAAAAB3aW4xMS10ZXN0AAAAAAAAcspyfS+JKEm2u4k2JMrQCsdDPQllOvERi0lWiSvR6R9yynJ9L4koSba7iTYkytAKx0M9CWU68RGLSVaJK9HpHxAAAAAFAACgJgAAALkAAAAcAAAACwAAoLZjXpC/wU5JspxltzLT0hq5AAAAJwEAAAkAAKCJAAAAMVNQU+KKWEa8TDhDu/wTkyaYbc5tAAAABAAAAAAfAAAALgAAAFMALQAxAC0ANQAtADIAMQAtADUAOQA2ADQAMAA0ADUANgA2AC0AMQA1ADEAOAA2ADQAMAAwADMAMAAtADIAOAA3ADgANQAyADIAOQAzADQALQAxADAAMAAxAAAAAAAAAFkAAAAxU1BTVShMn3mfOUuo0OHULeHV8z0AAAAFAAAAAB8AAAAVAAAAcAByAG8AawB6AHUAbAB0ACAAYQBkAF8AYgA0ADUAYQAzADYAMQA3AAAAAAAAAAAAOQAAADFTUFOxFm1ErY1wSKdIQC6kPXiMHQAAAGgAAAAASAAAALL8yGu8QKdJnv0M9Sk7Uw4AAAAAAAAAAAAAAAA="
@@ -165,14 +167,32 @@ if ($moduleInstalled -eq $null) {
 }
 
 function anydeskupdate {
-if (Test-Path $oldFilePath) {
+	
+# Check thoses path for old Anydesk installation
+$paths = @(
+    "C:\Program Files (x86)\AnyDesk-*\AnyDesk-*.exe",
+    "C:\Program Files (x86)\AnyDesk\AnyDesk-*.exe"
+)
+
+$files = foreach ($path in $paths) {
+    Get-ChildItem -Path $path -ErrorAction SilentlyContinue
+}
+
+if ($files) {
+    foreach ($file in $files) {
+        Write-Host "Found Old Anydesk Support installation: $($file.FullName)"
+        # Run uninstall (adjust arguments if needed)
+        Start-Process -FilePath $file.FullName -ArgumentList "--remove" -Wait
+    }
+} else {
+    Write-Host "No old AnyDesk executables found."
+}
+
+if ($file -or (Test-Path $oldFilePath)) {
 Write-Host "- Downloading Async Support package"
 # 20250416 - Use curl instead of invoke-webrequest that throw error 403 when ran from inside this exe
 # Invoke-WebRequest -Uri $AnyDeskUrl -OutFile $AnyDeskInstallerPath
 anydesk_download
-if (Test-Path $oldFilePath) {
-}
-
 # Fonction pour obtenir la version d'un fichier
 function Get-FileVersion {
     param (
