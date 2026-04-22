@@ -22,8 +22,9 @@
 # Version 2.7 - Download Anydesk from async website
 # Version 2.8 - Set shortcut to Anydesk if it gets updated
 # Version 2.9 - Remove old anydesk installation and reinstall with a path that match shortcut conf.
+# Version 3.0 - Fixed anydesk version detection
 
-$version = "2.9"
+$version = "3.0"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
@@ -204,18 +205,18 @@ function Get-FileVersion {
 }
 
 # Comparing files versions
-$oldFileVersion = Get-FileVersion -filePath $oldFilePath
-$newFileVersion = Get-FileVersion -filePath $AnyDeskInstallerPath
+$oldFileVersion = [version](Get-FileVersion -filePath $oldFilePath)
+$newFileVersion = [version](Get-FileVersion -filePath $AnyDeskInstallerPath)
 
 # Displayinf versions 
 Write-Host "- Checking if Anydesk needs an update - Installed: $oldFileVersion - Available: $newFileVersion"
 # Comparer les versions
 if ($newFileVersion -gt $oldFileVersion) {
-	Write-Host "Installing Async Support package"
+	Write-Host "- Installing Async Support package"
 	# Install anydesk using specified options
 	$arguments = "--install `"${env:ProgramFiles}\AnyDesk`" --start-with-win --create-desktop-icon --remove-first"
 	Start-Process -FilePath "$AnyDeskInstallerPath" -ArgumentList $arguments -Wait
-	Write-host "Setting Anydesk shortcut to CTRL + ALT + H"
+	Write-host "- Setting Anydesk shortcut to CTRL + ALT + H"
 	$bytes = [Convert]::FromBase64String($AnyDeskShortcutB64)
 	[System.IO.File]::WriteAllBytes("C:\Users\Public\Desktop\AnyDesk Async IT Support.lnk", $bytes)
 } else {
