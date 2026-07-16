@@ -23,14 +23,15 @@
 # Version 2.8 - Set shortcut to Anydesk if it gets updated
 # Version 2.9 - Remove old anydesk installation and reinstall with a path that match shortcut conf.
 # Version 3.0 - Fixed anydesk version detection
+# Version 3.1 - new Anydesk download URL
 
-$version = "3.0"
+$version = "3.1"
 
 # Ressources --------------------------
 $updateexedownloadurl = "https://api.github.com/repos/async-it/ps_windows_update/releases/latest"
 
 # Anydesk Download URL and path
-$AnyDeskUrl = "https://async-it.ch/data/files/async_support_client.png"
+$AnyDeskUrl = "https://raw.githubusercontent.com/async-it/public/refs/heads/main/Async_support_client.exe"
 $AnyDeskInstallerPath = "C:\Windows\Temp\anydesk_support_client.exe"
 $AnyDeskInstallPath = "C:\Program Files\AnyDesk\AnyDesk-b45a3617.exe"
 # Anydesk paths to check
